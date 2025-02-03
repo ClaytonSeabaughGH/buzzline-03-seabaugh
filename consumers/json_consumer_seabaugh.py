@@ -1,17 +1,4 @@
-"""
-json_consumer_seabaugh.py
 
-Consume json messages from a Kafka topic and process them.
-
-JSON is a set of key:value pairs. 
-
-Example serialized Kafka message
-"{\"message\": \"I love Python!\", \"author\": \"Eve\"}"
-
-Example JSON message (after deserialization) to be analyzed
-{"message": "I love Python!", "author": "Eve"}
-
-"""
 
 #####################################
 # Import Modules

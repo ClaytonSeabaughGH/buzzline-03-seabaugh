@@ -107,3 +107,9 @@ kafka-python
 
 # Faker import to simulate real-time data
 Faker
+
+# Prometheus client for grafana dashboard
+prometheus_client
+
+# Polars for faster csv reading/processing
+Polars
