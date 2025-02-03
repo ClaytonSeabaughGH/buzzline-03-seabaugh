@@ -1,183 +1,90 @@
-"""
-json_producer_seabaugh.py
-
-Stream JSON data to a Kafka topic.
-
-Example JSON message
-{"message": "I love Python!", "author": "Eve"}
-
-Example serialized to Kafka message
-"{\"message\": \"I love Python!\", \"author\": \"Eve\"}"
-
-"""
-
-#####################################
-# Import Modules
-#####################################
-
-# Import packages from Python Standard Library
 import os
 import sys
 import time
-import pathlib  # work with file paths
-import json  # work with JSON data
-from faker import Faker # to simulate real-time data
-
-# Import external packages
+import pathlib
+import json
+import pandas as pd
+from faker import Faker
 from dotenv import load_dotenv
-
-# Import functions from local modules
-from utils.utils_producer import (
-    verify_services,
-    create_kafka_producer,
-    create_kafka_topic,
-)
+from utils.utils_producer import verify_services, create_kafka_producer, create_kafka_topic
 from utils.utils_logger import logger
 
-#####################################
 # Load Environment Variables
-#####################################
-
 load_dotenv()
 
-#####################################
 # Getter Functions for .env Variables
-#####################################
-
-
 def get_kafka_topic() -> str:
-    """Fetch Kafka topic from environment or use default."""
     topic = os.getenv("BUZZ_TOPIC", "unknown_topic")
     logger.info(f"Kafka topic: {topic}")
     return topic
 
-
 def get_message_interval() -> int:
-    """Fetch message interval from environment or use default."""
     interval = int(os.getenv("BUZZ_INTERVAL_SECONDS", 1))
     logger.info(f"Message interval: {interval} seconds")
     return interval
 
-
-#####################################
 # Set up Paths
-#####################################
-
-# The parent directory of this file is its folder.
-# Go up one more parent level to get the project root.
 PROJECT_ROOT = pathlib.Path(__file__).parent.parent
-logger.info(f"Project root: {PROJECT_ROOT}")
+DATA_FOLDER = PROJECT_ROOT.joinpath("data")
+DATA_FILE = DATA_FOLDER.joinpath("buzz.json")
 
-# Set directory where data is stored
-DATA_FOLDER: pathlib.Path = PROJECT_ROOT.joinpath("data")
-logger.info(f"Data folder: {DATA_FOLDER}")
+# Load JSON data into a DataFrame
+def load_data_to_dataframe(file_path: pathlib.Path) -> pd.DataFrame:
+    try:
+        with open(file_path, "r") as file:
+            json_data = json.load(file)
+        df = pd.DataFrame(json_data)
+        logger.info(f"Loaded {len(df)} records into DataFrame.")
+        return df
+    except Exception as e:
+        logger.error(f"Error loading data into DataFrame: {e}")
+        return pd.DataFrame()
 
-# Set the name of the data file
-DATA_FILE: pathlib.Path = DATA_FOLDER.joinpath("buzz.json")
-logger.info(f"Data file: {DATA_FILE}")
+# Filter messages
+def filter_messages(df: pd.DataFrame) -> pd.DataFrame:
+    return df[df['message'].str.len() > 20]
 
-#####################################
-# Message Generator
-#####################################
+# Add real-time statistics
+def enrich_message_with_stats(df: pd.DataFrame, message_dict: dict) -> dict:
+    avg_length = df['message'].apply(len).mean()
+    message_dict['avg_message_length'] = avg_length
+    return message_dict
 
-def generate_messages(file_path: pathlib.Path):
-    """
-    Read from a JSON file and yield them one by one, continuously.
-
-    Args:
-        file_path (pathlib.Path): Path to the JSON file.
-
-    Yields:
-        dict: A dictionary containing the JSON data.
-    """
-    while True:
-        try:
-            logger.info(f"Opening data file in read mode: {DATA_FILE}")
-            with open(DATA_FILE, "r") as json_file:
-                logger.info(f"Reading data from file: {DATA_FILE}")
-
-                # Load the JSON file as a list of dictionaries
-                json_data: list = json.load(json_file)
-
-                if not isinstance(json_data, list):
-                    raise ValueError(
-                        f"Expected a list of JSON objects, got {type(json_data)}."
-                    )
-
-                # Iterate over the entries in the JSON file
-                for buzz_entry in json_data:
-                    logger.debug(f"Generated JSON: {buzz_entry}")
-                    yield buzz_entry
-        except FileNotFoundError:
-            logger.error(f"File not found: {file_path}. Exiting.")
-            sys.exit(1)
-        except json.JSONDecodeError as e:
-            logger.error(f"Invalid JSON format in file: {file_path}. Error: {e}")
-            sys.exit(2)
-        except Exception as e:
-            logger.error(f"Unexpected error in message generation: {e}")
-            sys.exit(3)
-
-# Add faker function to generate dynamic messages 
+# Generate dynamic messages with Faker
 faker = Faker()
+def generate_fake_dataframe(num_records: int = 100) -> pd.DataFrame:
+    data = [{"message": faker.sentence(), "author": faker.name(), "timestamp": time.time()} for _ in range(num_records)]
+    return pd.DataFrame(data)
 
-def generate_dynamic_message():
-    return {
-        "message": faker.sentence(),
-        "author": faker.name(),
-        "timestamp": time.time()
+# Display summary statistics
+def display_summary(df: pd.DataFrame):
+    logger.info(f"Total messages: {len(df)}")
+    logger.info(f"Unique authors: {df['author'].nunique()}")
+    logger.info(f"Average message length: {df['message'].apply(len).mean()}")
 
- }
-
-#####################################
 # Main Function
-#####################################
-
-
 def main():
-    """
-    Main entry point for this producer.
-
-    - Ensures the Kafka topic exists.
-    - Creates a Kafka producer using the `create_kafka_producer` utility.
-    - Streams generated JSON messages to the Kafka topic.
-    """
-
     logger.info("START producer.")
     verify_services()
-
-    # fetch .env content
     topic = get_kafka_topic()
     interval_secs = get_message_interval()
 
-    # Verify the data file exists
     if not DATA_FILE.exists():
-        logger.error(f"Data file not found: {DATA_FILE}. Exiting.")
-        sys.exit(1)
+        logger.warning(f"Data file not found: {DATA_FILE}. Generating fake data.")
+        df = generate_fake_dataframe()
+    else:
+        df = load_data_to_dataframe(DATA_FILE)
 
-    # Create the Kafka producer
-    producer = create_kafka_producer(
-        value_serializer=lambda x: json.dumps(x).encode("utf-8")
-    )
-    if not producer:
-        logger.error("Failed to create Kafka producer. Exiting...")
-        sys.exit(3)
+    df = filter_messages(df)
 
-    # Create topic if it doesn't exist
+    producer = create_kafka_producer(value_serializer=lambda x: json.dumps(x).encode("utf-8"))
+    create_kafka_topic(topic)
+
     try:
-        create_kafka_topic(topic)
-        logger.info(f"Kafka topic '{topic}' is ready.")
-    except Exception as e:
-        logger.error(f"Failed to create or verify topic '{topic}': {e}")
-        sys.exit(1)
-
-    # Generate and send messages
-    logger.info(f"Starting message production to topic '{topic}'...")
-    try:
-        for message_dict in generate_messages(DATA_FILE):
-            # Send message directly as a dictionary (producer handles serialization)
-            producer.send(topic, value=message_dict)
-            logger.info(f"Sent message to topic '{topic}': {message_dict}")
+        for _, row in df.iterrows():
+            enriched_message = enrich_message_with_stats(df, row.to_dict())
+            producer.send(topic, value=enriched_message)
+            logger.info(f"Sent message to topic '{topic}': {enriched_message}")
             time.sleep(interval_secs)
     except KeyboardInterrupt:
         logger.warning("Producer interrupted by user.")
@@ -185,29 +92,8 @@ def main():
         logger.error(f"Error during message production: {e}")
     finally:
         producer.close()
+        display_summary(df)
         logger.info("Kafka producer closed.")
-
-    logger.info("END producer.")
-
-
-
-#####################################
-# Track Metrics
-#####################################
-
-message_count = 0
-start_time = time.time()
-
-# In the loop
-message_count += 1
-if message_count % 100 == 0:
-    logger.info(f"Sent {message_count} messages in {time.time() - start_time:.2f} seconds.")
-
-
-
-#####################################
-# Conditional Execution
-#####################################
 
 if __name__ == "__main__":
     main()
