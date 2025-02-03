@@ -104,3 +104,6 @@ pandas
 
 # Apache Kafka Python client
 kafka-python
+
+# Faker import to simulate real-time data
+Faker

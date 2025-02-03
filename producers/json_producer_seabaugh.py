@@ -21,6 +21,7 @@ import sys
 import time
 import pathlib  # work with file paths
 import json  # work with JSON data
+from faker import Faker # to simulate real-time data
 
 # Import external packages
 from dotenv import load_dotenv
@@ -78,6 +79,14 @@ logger.info(f"Data file: {DATA_FILE}")
 #####################################
 # Message Generator
 #####################################
+
+faker = Faker()
+
+def generate_dynamic_message():
+    return {
+        "message": faker.sentence(),
+        "author": faker.name(),
+        "timestamp": time.time()
 
 
 def generate_messages(file_path: pathlib.Path):
