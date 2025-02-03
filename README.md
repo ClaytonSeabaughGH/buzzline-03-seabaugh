@@ -1,33 +1,37 @@
-# buzzline-03-seabaugh 
+# buzzline-03-seabaugh
 
-Streaming data does not have to be simple text.
-Many of us are familiar with streaming video content and audio (e.g. music) files. 
+**Streaming data** is not limited to simple text. Many are familiar with streaming video and audio content (e.g. music files).
 
-Streaming data can be structured (e.g. csv files) or
-semi-structured (e.g. json data). 
+Streaming data can be:
+- **Structured** (e.g. CSV files)
+- **Semi-structured** (e.g. JSON data)
 
+---
 
+## :bulb: Task 1. Manage Local Project Virtual Environment
 
-## Task 1. Manage Local Project Virtual Environment
+1. **Create your `.venv`**
+2. **Activate `.venv`**
+3. **Install the required dependencies** using `requirements.txt`
 
-1. Create your .venv
-2. Activate .venv
-3. Install the required dependencies using requirements.txt.
+---
 
-## Task 2. Start Zookeeper and Kafka (2 Terminals)
+## :rocket: Task 2. Start Zookeeper and Kafka (2 Terminals)
 
+To begin, start **Zookeeper** and **Kafka** in separate terminals as instructed in your setup.
 
-## Task 3. Start a JSON Producer
+---
 
-In VS Code, open a terminal.
-Use the commands below to activate .venv, and start the producer. 
+## :pencil: Task 3. Start a JSON Producer
 
-Windows:
+In VS Code, open a terminal. Use the commands below to activate `.venv`, and start the **JSON producer**.
+
+### Windows:
 
 ```shell
 .venv\Scripts\activate
 py -m producers.json_producer_seabaugh
-```
+
 
 Mac/Linux:
 ```zsh
@@ -35,15 +39,10 @@ source .venv/bin/activate
 python3 -m producers.json_producer_seabaugh
 ```
 
-What did we name the topic used with JSON data? 
-Hint: See the producer code and [.env](.env).
-
-## Task 4. Start a JSON Consumer
-
+## :camera: Task 4. Start a JSON Consumer
 Consumers process streaming data in real time.
 
-In VS Code, open a NEW terminal in your root project folder. 
-Use the commands below to activate .venv, and start the consumer. 
+In VS Code, open a NEW terminal in your root project folder. Use the commands below to activate .venv and start the JSON consumer.
 
 Windows:
 ```shell
@@ -57,7 +56,7 @@ source .venv/bin/activate
 python3 -m consumers.json_consumer_seabaugh
 ```
 
-## Task 5. Start a CSV Producer
+## :file_folder: Task 5. Start a CSV Producer
 
 Follow a similar process to start the csv producer. 
 You will need to:
@@ -68,7 +67,7 @@ You will need to:
 5. Know the full name of the module you want to run. Hint: Look in the producers folder.
 
 
-## Task 6. Start a CSV Consumer
+## :file_folder: Task 6. Start a CSV Consumer
 
 Follow a similar process to start the csv consumer. 
 You will need to:
@@ -79,7 +78,7 @@ You will need to:
 5. Know the full name of the module you want to run. Hint: Look in the consumers folder.
 
 
-## About the Smart Smoker (CSV Example)
+## :hamburger: About the Smart Smoker (CSV Example)
 
 A food stall occurs when the internal temperature of food plateaus or 
 stops rising during slow cooking, typically between 150°F and 170°F. 
@@ -96,19 +95,19 @@ If the temperature varies by less than 2 degrees, the consumer alerts
 the BBQ master that a stall has been detected. This time window helps 
 capture recent trends while filtering out minor fluctuations.
 
-## Later Work Sessions
+## :memo: Later Work Sessions
 When resuming work on this project:
 1. Open the folder in VS Code. 
 2. Start the Zookeeper service.
 3. Start the Kafka service.
 4. Activate your local project virtual environment (.env).
 
-## Save Space
+## :floppy_disk: Save Space
 To save disk space, you can delete the .venv folder when not actively working on this project.
 You can always recreate it, activate it, and reinstall the necessary packages later. 
 Managing Python virtual environments is a valuable skill. 
 
-## License
+## :file_cabinet: License
 This project is licensed under the MIT License as an example project. 
 You are encouraged to fork, copy, explore, and modify the code as you like. 
 See the [LICENSE](LICENSE.txt) file for more.
