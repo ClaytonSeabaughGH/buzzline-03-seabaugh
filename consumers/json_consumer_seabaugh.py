@@ -113,9 +113,16 @@ def process_message(message: str) -> None:
 # Functions for Alerts
 # ###################################
 
-def detect_anomalies():
+def detect_anomalies(message_dict):
+    author = message_dict.get("author", "unknown")
+    message_content = message_dict.get("message", "").lower()
+
     if author_counts["unknown"] > 100:
         send_alert("High number of unknown authors detected!")
+
+    if "error" in message_content or "failure" in message_content:
+        send_alert(f"Critical keyword detected: {message_content}")
+
 
 def send_alert(message):
     logger.warning(f"ALERT: {message}")
