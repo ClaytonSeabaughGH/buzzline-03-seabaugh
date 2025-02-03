@@ -80,15 +80,6 @@ logger.info(f"Data file: {DATA_FILE}")
 # Message Generator
 #####################################
 
-faker = Faker()
-
-def generate_dynamic_message():
-    return {
-        "message": faker.sentence(),
-        "author": faker.name(),
-        "timestamp": time.time()
-
-
 def generate_messages(file_path: pathlib.Path):
     """
     Read from a JSON file and yield them one by one, continuously.
@@ -127,6 +118,16 @@ def generate_messages(file_path: pathlib.Path):
             logger.error(f"Unexpected error in message generation: {e}")
             sys.exit(3)
 
+# Add faker function to generate dynamic messages 
+faker = Faker()
+
+def generate_dynamic_message():
+    return {
+        "message": faker.sentence(),
+        "author": faker.name(),
+        "timestamp": time.time()
+
+ }
 
 #####################################
 # Main Function
@@ -187,6 +188,21 @@ def main():
         logger.info("Kafka producer closed.")
 
     logger.info("END producer.")
+
+
+
+#####################################
+# Track Metrics
+#####################################
+
+message_count = 0
+start_time = time.time()
+
+# In the loop
+message_count += 1
+if message_count % 100 == 0:
+    logger.info(f"Sent {message_count} messages in {time.time() - start_time:.2f} seconds.")
+
 
 
 #####################################
