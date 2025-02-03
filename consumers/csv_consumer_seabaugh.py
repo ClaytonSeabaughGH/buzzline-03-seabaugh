@@ -1,13 +1,3 @@
-"""
-csv_consumer_case.py
-
-Consume json messages from a Kafka topic and process them.
-
-Example Kafka message format:
-{"timestamp": "2025-01-11T18:15:00Z", "temperature": 225.0}
-
-"""
-
 #####################################
 # Import Modules
 #####################################
@@ -39,7 +29,6 @@ load_dotenv()
 # Getter Functions for .env Variables
 #####################################
 
-
 def get_kafka_topic() -> str:
     """Fetch Kafka topic from environment or use default."""
     topic = os.getenv("SMOKER_TOPIC", "unknown_topic")
@@ -67,11 +56,16 @@ def get_rolling_window_size() -> int:
     logger.info(f"Rolling window size: {window_size}")
     return window_size
 
+# Add function to get alert threshold
+def get_alert_threshold() -> float:
+    """Fetch alert temperature threshold from environment or use default."""
+    alert_threshold = float(os.getenv("ALERT_TEMPERATURE_THRESHOLD_F", 250.0))
+    logger.info(f"Alert temperature threshold: {alert_threshold} F")
+    return alert_threshold
 
 #####################################
 # Define a function to detect a stall
 #####################################
-
 
 def detect_stall(rolling_window_deque: deque) -> bool:
     """
@@ -101,15 +95,28 @@ def detect_stall(rolling_window_deque: deque) -> bool:
     logger.debug(f"Temperature range: {temp_range}°F. Stalled: {is_stalled}")
     return is_stalled
 
+#####################################
+# Function to check for alert (temperature threshold exceeded)
+#####################################
+
+def check_for_alert(temperature: float) -> None:
+    """
+    Check if the temperature exceeds the alert threshold.
+
+    Args:
+        temperature (float): The current temperature reading.
+    """
+    alert_threshold = get_alert_threshold()
+    if temperature >= alert_threshold:
+        logger.warning(f"ALERT! Temperature has exceeded the threshold: {temperature}°F")
 
 #####################################
 # Function to process a single message
-# #####################################
-
+#####################################
 
 def process_message(message: str, rolling_window: deque, window_size: int) -> None:
     """
-    Process a JSON-transferred CSV message and check for stalls.
+    Process a JSON-transferred CSV message and check for stalls and alerts.
 
     Args:
         message (str): JSON message received from Kafka.
@@ -140,16 +147,17 @@ def process_message(message: str, rolling_window: deque, window_size: int) -> No
                 f"STALL DETECTED at {timestamp}: Temp stable at {temperature}°F over last {window_size} readings."
             )
 
+        # Check for alert (temperature threshold exceeded)
+        check_for_alert(temperature)
+
     except json.JSONDecodeError as e:
         logger.error(f"JSON decoding error for message '{message}': {e}")
     except Exception as e:
         logger.error(f"Error processing message '{message}': {e}")
 
-
 #####################################
 # Define main function for this module
 #####################################
-
 
 def main() -> None:
     """
@@ -187,7 +195,6 @@ def main() -> None:
     finally:
         consumer.close()
         logger.info(f"Kafka consumer for topic '{topic}' closed.")
-
 
 #####################################
 # Conditional Execution
