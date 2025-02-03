@@ -1,10 +1,17 @@
 # buzzline-03-seabaugh
 
-**Streaming data** is not limited to simple text. Many are familiar with streaming video and audio content (e.g. music files).
+## :rocket: Project Overview
 
-Streaming data can be:
-- **Structured** (e.g. CSV files)
-- **Semi-structured** (e.g. JSON data)
+**Buzzline-03-Seabaugh** is a project focused on processing **streaming data** using **Kafka**, which can handle different data formats such as **JSON** and **CSV**. The goal of this project is to simulate a real-time streaming environment with producers that generate data (in JSON and CSV formats) and consumers that process that data as it arrives.
+
+In this project:
+- **Producers** send data to Kafka topics in either **JSON** or **CSV** format.
+- **Consumers** receive that data in real-time, process it, and trigger actions such as alerts based on certain conditions.
+
+For example, in the **CSV example**, we simulate a **smart smoker thermometer** that sends temperature readings to the consumer, and the consumer sends alerts when the temperature is stuck (a **stall**) for too long. This project leverages **Zookeeper** and **Kafka** to manage the streaming data and interactions between producers and consumers.
+
+---
+
 
 ---
 
