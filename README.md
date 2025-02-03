@@ -6,25 +6,18 @@ Many of us are familiar with streaming video content and audio (e.g. music) file
 Streaming data can be structured (e.g. csv files) or
 semi-structured (e.g. json data). 
 
-We'll work with two different types of data, and so we'll use two different Kafka topic names. 
-See [.env](.env). 
 
 
-
-    
-
-## Task 3. Manage Local Project Virtual Environment
-
+## Task 1. Manage Local Project Virtual Environment
 
 1. Create your .venv
 2. Activate .venv
 3. Install the required dependencies using requirements.txt.
 
-## Task 4. Start Zookeeper and Kafka (2 Terminals)
+## Task 2. Start Zookeeper and Kafka (2 Terminals)
 
 
-
-## Task 5. Start a JSON Producer
+## Task 3. Start a JSON Producer
 
 In VS Code, open a terminal.
 Use the commands below to activate .venv, and start the producer. 
@@ -45,7 +38,7 @@ python3 -m producers.json_producer_seabaugh
 What did we name the topic used with JSON data? 
 Hint: See the producer code and [.env](.env).
 
-## Task 6. Start a JSON Consumer
+## Task 4. Start a JSON Consumer
 
 Consumers process streaming data in real time.
 
@@ -64,10 +57,7 @@ source .venv/bin/activate
 python3 -m consumers.json_consumer_seabaugh
 ```
 
-What did we name the topic used with JSON data? 
-Hint: See the consumer code and [.env](.env).
-
-## Task 7. Start a CSV Producer
+## Task 5. Start a CSV Producer
 
 Follow a similar process to start the csv producer. 
 You will need to:
@@ -77,10 +67,8 @@ You will need to:
 4. Know how to use the -m (module flag to run your file as a module).
 5. Know the full name of the module you want to run. Hint: Look in the producers folder.
 
-What did we name the topic used with csv data? 
-Hint: See the producer code and [.env](.env).
 
-## Task 8. Start a CSV Consumer
+## Task 6. Start a CSV Consumer
 
 Follow a similar process to start the csv consumer. 
 You will need to:
@@ -90,8 +78,6 @@ You will need to:
 4. Know how to use the -m (module flag to run your file as a module).
 5. Know the full name of the module you want to run. Hint: Look in the consumers folder.
 
-What did we name the topic used with csv data? 
-Hint: See the consumer code and [.env](.env).
 
 ## About the Smart Smoker (CSV Example)
 
